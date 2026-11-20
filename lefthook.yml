@@ -1,0 +1,35 @@
+pre-commit:
+  jobs:
+    - name: format staged .go files
+      glob:
+        - "*.go"
+      stage_fixed: true
+      group:
+        jobs:
+          - run: go tool swag fmt {staged_files}
+          - run: go tool gofumpt -w {staged_files}
+
+    - name: lint staged .go files
+      glob:
+        - "*.go"
+      stage_fixed: true
+      run: |
+        set -euo pipefail
+
+        dirs=$(
+          for f in {staged_files}; do
+            [ -f "$f" ] || continue
+            dirname "$f"
+          done | sort -u
+        )
+
+        [ -n "$dirs" ] || exit 0
+
+        golangci-lint run $(printf './%s ' $dirs) \
+          -c .golangci.yaml \
+          --fix
+
+    - name: lint staged .sql files
+      glob: "*.sql"
+      stage_fixed: true
+      run: sqlfluff fix {staged_files}

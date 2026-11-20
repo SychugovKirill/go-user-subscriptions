@@ -1,0 +1,9 @@
+postgres:
+  url: postgres://user:password@localhost:5432/subscriptions?sslmode=disable
+  max_open_conns: 40
+  max_idle_conns: 10
+  conn_max_idle_time: 5m
+  conn_max_lifetime: 10m
+
+http:
+  port: 8080
